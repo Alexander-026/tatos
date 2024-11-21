@@ -1,0 +1,1 @@
+To run the project, go to the client folder and run the command <npm run dev>
