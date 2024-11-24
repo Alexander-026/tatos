@@ -1,83 +1,149 @@
+import type { SnackbarCloseReason } from "@mui/material"
 import { Divider, Paper, Typography } from "@mui/material"
-import Grid from "@mui/material/Grid2"
 import type {
   IFullCompany,
-  ICompany,
   IFormCompany,
+  CompanyUpdateBodyTypes,
 } from "../../../types/company"
-import { EmployeeLimit } from "../../../types/company"
-import { FormProvider, useFieldArray, useForm } from "react-hook-form"
+import type { SubmitHandler } from "react-hook-form"
+import { FormProvider, useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import companySchema from "../../../schema/companyShema"
-import FormField from "../../../components/common/FormField"
 import { useAppSelector } from "../../../app/hooks"
+import EmployeeTable from "./EmployeeTable/EmployeeTable"
+import { useUpdateCompanyMutation } from "../../../app/api/companyApiSlice"
+import { memo, useCallback, useEffect, useState } from "react"
+import CompanyFileds from "./CompanyFileds"
+import CompanyFormActions from "./CompanyFormActions"
+import TableUpdateAlert from "./TableUpdateAlert "
+import submitCompanyForm from "./submitCompanyForm"
 
-import EmployeeTable from "./EmployeeTable"
+export type UpdatedFileds = Partial<
+  Pick<CompanyUpdateBodyTypes, "companyFileds" | "employeeFields">
+>
 
+// Main component to handle the company form, including adding, updating, and deleting employees
 const FormCompany = ({ companyData }: { companyData: IFullCompany }) => {
   const { company, employees } = companyData
+
+  // Hook for handling company update operations with a loading state and result information
+  const [updateCompany, { isLoading, error, data, isSuccess, isError }] =
+    useUpdateCompanyMutation()
+
+  // Get the current user from the Redux store using `useAppSelector`
   const { user } = useAppSelector(state => state.user)
+
+  // State to manage the Snackbar visibility for update alerts
+  const [open, setOpen] = useState(false)
+
+  // Handler to close the Snackbar, which can be triggered by user interaction or timeout
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason,
+  ) => {
+    if (reason === "clickaway") {
+      return
+    }
+    setOpen(false)
+  }
+
+  // Initialize form methods using `useForm` with default values and validation schema
   const methods = useForm<IFormCompany>({
-    mode: "all",
-    resolver: yupResolver(companySchema),
+    mode: "all", // Validation mode for checking on every change
+    resolver: yupResolver(companySchema), // Use Yup resolver for schema validation
     defaultValues: {
-      employeeLimit: company.employeeLimit,
-      name: company.name,
-      employees: employees.map(emp => ({
-        birthDate: emp.birthDate,
-        email: emp.email,
-        emailStatus: emp.emailStatus,
-        firstName: emp.firstName,
-        image: emp.image,
-        lastName: emp.lastName,
-        role: emp.role
-      })),
+      employeeLimit: company.employeeLimit, // Set default company employee limit
+      name: company.name, // Set default company name
+      employees:
+        employees.map(emp => ({
+          id: emp.id,
+          firstName: emp.firstName,
+          lastName: emp.lastName,
+          birthDate: emp.birthDate,
+          email: emp.email,
+          emailStatus: emp.emailStatus,
+          image: emp.image,
+          role: emp.role,
+        })) || [], // Map existing employees to the form structure
     },
   })
+
   const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors, isValid, isDirty },
+    handleSubmit, // Handler for form submission
+    reset, // Function to reset the form to default values
+    getValues, // Function to get current form values
+    formState: { dirtyFields }, // Tracks which fields have been modified
   } = methods
 
-  if (user && user.role === "Employee") return <></>
+  // Function to handle form submission
+  const onSubmit: SubmitHandler<IFormCompany> = async form => {
+    const body = submitCompanyForm({ dirtyFields, employees, form, getValues })
+    if (body) {
+      updateCompany({
+        body,
+        companyId: company.id,
+      })
+    }
+  }
+
+  // Function to reset the form when a successful update occurs
+  const resetForm = useCallback(() => {
+    if (isSuccess) {
+      reset({
+        employeeLimit: company.employeeLimit,
+        name: company.name,
+        employees,
+      })
+      setOpen(true) // Open the Snackbar to show success message
+    }
+
+    if (isError) {
+      setOpen(true) // Open the Snackbar to show error message
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [company, employees, isError])
+
+  // Run `resetForm` whenever `isSuccess` or `isError` changes
+  useEffect(() => {
+    resetForm()
+  }, [resetForm])
 
   return (
-    <>
-      <Paper sx={{ padding: "1rem" }} component="form">
-        <Grid width={"100%"} container spacing={4}>
-          <Grid size={{ md: 6, xs: 12 }}>
-            <FormField<IFormCompany>
-              control={control}
-              errors={errors}
-              name="name"
-              label="Company Name"
-            />
-          </Grid>
-          <Grid size={{ md: 6, xs: 12 }}>
-            <FormField<IFormCompany>
-              control={control}
-              errors={errors}
-              name="employeeLimit"
-              label="Employee Limit"
-              type="select"
-              options={Object.values(EmployeeLimit).map(value => ({
-                value,
-                label: value,
-              }))}
-            />
-          </Grid>
-        </Grid>
+    <FormProvider {...methods}>
+      <Paper
+        sx={{ padding: "1rem" }}
+        component="form"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        {/* Snackbar alert for showing update status */}
+        <TableUpdateAlert
+          data={data}
+          error={error}
+          handleClose={(event, reason) => handleClose(event, reason)}
+          isError={isError}
+          isSuccess={isSuccess}
+          open={open}
+        />
+
+        {/* Company Fields */}
+        <CompanyFileds />
+
+        {/* Divider and title for employee section */}
+        <Divider>
+          <Typography variant="h5" component={"h5"} sx={{ my: "1rem" }}>
+            Employees
+          </Typography>
+        </Divider>
+
+        {/* Employee Table */}
+        <EmployeeTable isLoading={isLoading} />
+
+        {/* Divider and action buttons for form submission */}
+        <Divider />
+        <CompanyFormActions isLoading={isLoading} />
       </Paper>
-      <Divider>
-         <Typography variant="h5" component={"h5"} sx={{my: "1rem"}}>Employees</Typography>
-      </Divider>
-      <FormProvider {...methods}>
-        <EmployeeTable />
-      </FormProvider>
-    </>
+    </FormProvider>
   )
 }
 
-export default FormCompany
+export default memo(FormCompany)

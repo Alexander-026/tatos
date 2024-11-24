@@ -18,7 +18,6 @@ import Tasks from "./pages/private/Tasks"
 import Calendar from "./pages/private/Calendar"
 import Files from "./pages/private/Files"
 import { CssBaseline } from "@mui/material"
-import RedirectBack from "./components/RedirectBack"
 import Home from "./pages/Home"
 
 const App = () => {
@@ -28,13 +27,13 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="" element={<PrivateRouter />}>
           <Route path="" element={<Layout />}>
-            <Route path="company/:id" element={<Company />} />
-            <Route path="company/:id/messages" element={<Messages />} />
-            <Route path="company/:id/diagrams" element={<Diagrams />} />
-            <Route path="company/:id/tasks" element={<Tasks />} />
-            <Route path="company/:id/calendar" element={<Calendar />} />
-            <Route path="company/:id/files" element={<Files />} />
-             <Route path="*" element={<RedirectBack />} />
+            <Route path="company" element={<Company />} />
+            <Route path="company/messages" element={<Messages />} />
+            <Route path="company/diagrams" element={<Diagrams />} />
+            <Route path="company/tasks" element={<Tasks />} />
+            <Route path="company/calendar" element={<Calendar />} />
+            <Route path="company/files" element={<Files />} />
+            <Route path="*" element={<>NotFount</>} />
           </Route>
         </Route>
         <Route path="" element={<ActivatedRouter />}>

@@ -6,7 +6,7 @@ import {
   ListItemText,
   styled,
 } from "@mui/material"
-import { NavLink, useParams } from "react-router-dom"
+import { NavLink } from "react-router-dom"
 import type { Page } from "../types/page"
 import { TiMessages } from "react-icons/ti"
 import { MdDashboard } from "react-icons/md"
@@ -24,46 +24,46 @@ const StyledNavLink = styled(NavLink)(({ theme }) => ({
   },
 }))
 
+const pages: Page[] = [
+  {
+    label: "Copmany",
+    isRirector: false,
+    path: `/company`,
+    icon: <MdDashboard size={25} />,
+  },
+  {
+    label: "Messages",
+    isRirector: false,
+    path: `/company/messages`,
+    icon: <TiMessages size={25} />,
+  },
+  {
+    label: "Diagrams",
+    isRirector: false,
+    path: `/company/diagrams`,
+    icon: <BsDiagram3Fill size={25} />,
+  },
+  {
+    label: "Tasks",
+    isRirector: false,
+    path: `/company/tasks`,
+    icon: <BiTask size={25} />,
+  },
+  {
+    label: "Calendar",
+    isRirector: false,
+    path: `/company/calendar`,
+    icon: <FaRegCalendarAlt size={25} />,
+  },
+  {
+    label: "Files",
+    isRirector: false,
+    path: `/company/files`,
+    icon: <LuFile size={25} />,
+  },
+]
+
 const MenuPages = ({ openSidebar }: { openSidebar: boolean }) => {
-  const { id } = useParams()
-  const pages: Page[] = [
-    {
-      label: "Copmany",
-      isRirector: false,
-      path: `/company/${id}`,
-      icon: <MdDashboard size={25} />,
-    },
-    {
-      label: "Messages",
-      isRirector: false,
-      path: `/company/${id}/messages`,
-      icon: <TiMessages size={25} />,
-    },
-    {
-      label: "Diagrams",
-      isRirector: false,
-      path: `/company/${id}/diagrams`,
-      icon: <BsDiagram3Fill size={25} />,
-    },
-    {
-      label: "Tasks",
-      isRirector: false,
-      path: `/company/${id}/tasks`,
-      icon: <BiTask size={25} />,
-    },
-    {
-      label: "Calendar",
-      isRirector: false,
-      path: `/company/${id}/calendar`,
-      icon: <FaRegCalendarAlt size={25} />,
-    },
-    {
-      label: "Files",
-      isRirector: false,
-      path: `/company/${id}/files`,
-      icon: <LuFile size={25} />,
-    },
-  ]
   return (
     <List sx={{ width: "100%" }}>
       {pages.map(page => (

@@ -7,24 +7,8 @@ import companyController from "../controllers/company.controller"
 
 const router = express.Router()
 
-router.post(
-  "/addEmployee/:id",
-  authMiddleWare,
-  authorizeDirector,
-  companyController.addEmployeeC,
-)
-router.delete(
-  "/removeEmployee/:id",
-  authMiddleWare,
-  authorizeDirector,
-  companyController.removeEmployeeC,
-)
-router.put(
-  "/updateEmployee/:id",
-  authMiddleWare,
-  authorizeDirector,
-  companyController.updateEmployee,
-)
+
+
 router.put(
   "/update/:id",
   authMiddleWare,

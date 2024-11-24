@@ -1,4 +1,3 @@
-import { Interface } from "readline"
 import type { User } from "./user"
 
 export interface ICompany {
@@ -12,17 +11,56 @@ export interface ICompany {
   employeeLimit: EmployeeLimit
 }
 
+
+export type CompanyContextType = {
+  companyData: IFullCompany
+}
+
 export interface IFullCompany {
   company: ICompany
   employees: User["user"][]
 }
 
-export type IFormEmployee =  Omit<User["user"],  "wasOnline"> 
+export type IFormEmployee =  Omit<User["user"],  "wasOnline" > & {
+  password?: string 
+}
 
 export type IFormCompany = {
   employeeLimit: EmployeeLimit
   name: string
   employees: IFormEmployee[]
+}
+
+export type UpdatedCompany = {
+  updatedCompany: ICompany
+  message: string
+}
+
+
+export type CompanyUpdateBodyTypes = {
+  companyFileds: CompanyFieldsToUpdate
+  employeeFields: UpdateEmployeeBody[]
+  newEmployees: AddEmployeeBody[]
+  removedEmployees:  string[]
+}
+
+
+export type ICompanyUpdateBody = {
+  body:  Partial<CompanyUpdateBodyTypes>,
+  companyId: string
+}
+
+export type CompanyFieldsToUpdate = Partial<
+Pick<ICompany, "employeeLimit" | "name">
+>
+
+export type AddEmployeeBody = Partial<Omit<User, "id" | "wasOnline" | "emailStatus">> & {
+  email: string
+  password: string
+}
+
+export type UpdateEmployeeBody = Partial<Omit<User, "id" | "wasOnline">> & {
+  id: string
 }
 
 export enum EmployeeLimit {

@@ -1,4 +1,3 @@
-
 import type { User } from "../../types/user"
 import type { IUserState } from "./userSlice"
 import type { CaseReducer, PayloadAction } from "@reduxjs/toolkit"
@@ -17,4 +16,5 @@ export const logOut: CaseReducer<IUserState> = state => {
   state.user = null
   state.refreshed = false
 }
+
 
