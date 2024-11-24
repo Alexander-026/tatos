@@ -1,14 +1,17 @@
 import companyDto from "../../dtos/companyDto";
 import Company from "../../models/company.model";
 import User from "../../models/user.model";
-import type { ICompany, ReqUpdateEmployeeBody } from "../../types/company";
+import type { ICompany, UpdateEmployeeBody } from "../../types/company";
 
-const updateEmployee = async (
-  idCompany: string,
-  employees: ReqUpdateEmployeeBody[]
-): Promise<{ updatedCompany: ICompany; message: string }> => {
+const updateEmployee = async ({
+  employees,
+  companyId,
+}: {
+  companyId: string;
+  employees: UpdateEmployeeBody[];
+}): Promise<{ updatedCompany: ICompany; message: string }> => {
   // Find the company by its ID
-  const company = await Company.findById(idCompany);
+  const company = await Company.findById(companyId);
 
   // If the company does not exist, throw an error
   if (!company) {
@@ -40,14 +43,14 @@ const updateEmployee = async (
       }
 
       // Prepare the update data object for partial updates
-      const updateData: Partial<ReqUpdateEmployeeBody> = {};
+      const updateData: Partial<UpdateEmployeeBody> = {};
       for (const key of Object.keys(
         employee
-      ) as (keyof ReqUpdateEmployeeBody)[]) {
+      ) as (keyof UpdateEmployeeBody)[]) {
         if (key === "id") continue; // Skip the "id" field, it is not updated
 
         // Compare the values between the new data and the existing data
-        if (employee[key] !== existingUser[key]) {
+        if (!!employee[key] && !!existingUser[key] && employee[key] !== existingUser[key]) {
           updateData[key] = employee[key] as any; // Add only changed fields to updateData
         }
       }

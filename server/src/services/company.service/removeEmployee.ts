@@ -3,14 +3,14 @@ import Company from "../../models/company.model"
 import type {
   CompanyModel,
   ICompany,
-  ReqRemoveEmployeeBody,
+  RemoveEmployeeBody,
 } from "../../types/company"
 import ApiError from "../../exceptions/apiError"
 import User from "../../models/user.model"
 import companyDto from "../../dtos/companyDto"
 
 const removeEmployee = async (
-  regRemoveEmployeeBody: ReqRemoveEmployeeBody & { companyId: string },
+  regRemoveEmployeeBody: RemoveEmployeeBody & { companyId: string },
 ): Promise<{ message: string; updatedCompany: ICompany }> => {
   const { companyId, userIds } = regRemoveEmployeeBody
   // Convert userIds to an array of ObjectIds to work correctly with MongoDB
@@ -48,7 +48,7 @@ const removeEmployee = async (
     throw ApiError.BadRequest("Company not found")
   }
 
-  const emailList = emailsToDelete.join(",")
+  const emailList = emailsToDelete.join("\n")
   const message = `
   ${emailList} 
   employees have been successfully deleted.

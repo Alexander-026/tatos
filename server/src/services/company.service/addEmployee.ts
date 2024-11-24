@@ -5,15 +5,15 @@ import User from "../../models/user.model";
 import type {
   CompanyModel,
   ICompany,
-  ReqAddEmployeeBody,
+  AddEmployeeBody,
 } from "../../types/company";
 import companyDto from "../../dtos/companyDto";
 
 const addEmployee = async ({
   companyId,
-  newEployees,
+  candidateEmployees,
 }: {
-  newEployees: ReqAddEmployeeBody[];
+  candidateEmployees: AddEmployeeBody[];
   companyId: string;
 }): Promise<{ message: string; updatedCompany: ICompany}> => {
   // const employeeExists = await User.findOne({ email })
@@ -25,23 +25,23 @@ const addEmployee = async ({
 
   const numbers = company.employeeLimit.match(/\d+/g);
   const limit = numbers ? parseInt(numbers[0], 10) : 0;
-
-  if (limit === company.employees.length) {
-    throw ApiError.BadRequest(`The company is overcrowded`);
+  if (limit < company.employees.length + candidateEmployees.length) {
+    throw ApiError.BadRequest(`The number of employees must not exceed the limit:${limit}`);
   }
 
    // Проверяем существующие emails
-   const emailsToCheck = newEployees.map((e) => e.email);
+   const emailsToCheck = candidateEmployees.map((e) => e.email);
    const existingUsers = await User.find({ email: { $in: emailsToCheck } });
    const existingEmails = existingUsers.map((user) => user.email);
+   const newEmails = emailsToCheck.filter((email) => !existingEmails.includes(email));
  
    // Создаем сообщение для существующих emails
    const message = existingEmails.length
      ? `The following emails already exist: ${existingEmails.join(", ")}`
-     : "";
+     : `The employees ${newEmails.join("\n")} have been added successfully.`;
  
    // Фильтруем новых сотрудников, исключая тех, кто уже существует
-   const employeesToAdd = newEployees.filter(
+   const employeesToAdd = candidateEmployees.filter(
      (employee) => !existingEmails.includes(employee.email)
    );
 

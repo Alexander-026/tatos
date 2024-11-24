@@ -1,11 +1,20 @@
-import type{ EmployeeLimit } from "./company"
+import type { EmployeeLimit } from "./company"
 import type Tokens from "./token"
 
 // export type UserRole = "Director" | "Manager" | "Employee"
-export type EmailStatus = "unconfirmed" | "pending" | "confirmed"
+export enum EmailStatus {
+  unconfirmed = "unconfirmed",
+  pending = "pending",
+  confirmed = "confirmed",
+}
 
-export enum UserRole  {
+export enum UserRole {
   director = "Director",
+  manager = "Manager",
+  employee = "Employee",
+}
+
+export enum UserRoleForm {
   manager = "Manager",
   employee = "Employee",
 }
@@ -24,7 +33,6 @@ export type User = Tokens & {
   }
 }
 
-
 export type RegisterUser = {
   password: string
   email: string
@@ -33,5 +41,3 @@ export type RegisterUser = {
 }
 
 export type LoginUser = Pick<RegisterUser, "email" | "password">
-
-

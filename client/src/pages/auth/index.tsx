@@ -11,7 +11,7 @@ import {
   useLoginMutation,
   useRegisterMutation,
 } from "../../app/api/userApiSlice"
-import { useNavigate } from "react-router-dom"
+import { Navigate, useNavigate } from "react-router-dom"
 import { userSlice } from "../../features/user/userSlice"
 import useLocalStorage from "../../hooks/useLocalStorage"
 import type { LoginUser, RegisterUser, User } from "../../types/user"
@@ -20,20 +20,23 @@ import { useLazyGetMyCompaniesQuery } from "../../app/api/companyApiSlice"
 
 const Auth = () => {
   const [value, setValue] = React.useState("1")
-  const [signUp, { isLoading: signUpLoading, error: signUpError }] =
+  const [signUp,  { isLoading: signUpLoading, error: signUpError, reset: resetSignUp }] =
     useRegisterMutation()
-  const [signIn, { isLoading: signInLoading, error: signInError }] =
+  const [signIn, { isLoading: signInLoading, error: signInError, reset: resetSignIn }] =
     useLoginMutation()
   const [getCompanies, { isLoading, error }] = useLazyGetMyCompaniesQuery()
   const navigate = useNavigate()
   const dispath = useAppDispatch()
   const { onUser } = userSlice.actions
   // Hook for working with local storage
-  const [, setToken] = useLocalStorage("accessToken")
-  const [, setRefreshToken] = useLocalStorage("refreshToken")
+  const [accessToken, setToken] = useLocalStorage("accessToken")
+  const [refreshToken, setRefreshToken] = useLocalStorage("refreshToken")
+  const [companyId, setCompanyId] = useLocalStorage("companyId")
 
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue)
+    resetSignUp()
+    resetSignIn()
   }
 
   const authHandler = async (authorized: User) => {
@@ -46,8 +49,11 @@ const Auth = () => {
     const registeredUser = await signUp(fields).unwrap()
     await authHandler(registeredUser)
     const companies = await getCompanies().unwrap()
+
     if (companies?.length === 1) {
-      navigate(`/company/${companies[0].id}`, { replace: true })
+      const companyId = companies[0].id
+      setCompanyId(companyId)
+      navigate(`/company`, { replace: true })
     }
   }
 
@@ -56,10 +62,16 @@ const Auth = () => {
     const loggedUser = await signIn(fields).unwrap()
     await authHandler(loggedUser)
     const companies = await getCompanies().unwrap()
+
     if (companies?.length === 1) {
-      navigate(`/company/${companies[0].id}`, { replace: true })
+      const companyId = companies[0].id
+      setCompanyId(companyId)
+      navigate(`/company`, { replace: true })
     }
   }
+
+  if (accessToken && refreshToken && companyId)
+    return <Navigate to="/company" replace />
 
   return (
     <Stack
@@ -88,18 +100,13 @@ const Auth = () => {
               />
             </TabList>
           </Box>
-          {signUpError && (
-            <Alert severity="error">
-              {(signUpError as ApiError).data.message}
-            </Alert>
-          )}
-          {signInError && (
-            <Alert severity="error">
-              {(signInError as ApiError).data.message}
-            </Alert>
-          )}
-          {error && (
-            <Alert severity="error">{(error as ApiError).data.message}</Alert>
+          {[signUpError, signInError, error].map(
+            (err, index) =>
+              err && (
+                <Alert severity="error" key={index}>
+                  {(err as ApiError).data.message}
+                </Alert>
+              ),
           )}
           <TabPanel sx={{ height: "28rem" }} value="1">
             <SignIn

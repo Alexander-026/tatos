@@ -30,6 +30,7 @@ const ProfileMenu = ({ open }: { open: boolean }) => {
   const { user } = useAppSelector(state => state.user)
   const [, , removeToken] = useLocalStorage("accessToken")
   const [, , removeRefreshToken] = useLocalStorage("refreshToken")
+  const [, , removeCompanyId] = useLocalStorage("companyId")
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { logOut } = userSlice.actions
@@ -45,6 +46,7 @@ const ProfileMenu = ({ open }: { open: boolean }) => {
       dispatch(apiSlice.util.resetApiState())
       removeToken()
       removeRefreshToken()
+      removeCompanyId()
       navigate("/", { replace: true })
     } catch (err) {
       console.error(err)

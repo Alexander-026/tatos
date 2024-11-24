@@ -3,6 +3,7 @@ import { Avatar } from "@mui/material"
 
 type MyAvatarTypes = {
   user: Pick<User["user"], "firstName" | "lastName" | "image" | "email">
+  small?: boolean
 }
 
 function stringToColor(string: string) {
@@ -34,16 +35,20 @@ function stringAvatar(name: string) {
   }
 }
 
-const MyAvatar = ({ user } : MyAvatarTypes) => {
+const MyAvatar = ({ user, small }: MyAvatarTypes) => {
   return (
     <Avatar
-      
-      {...stringAvatar(`${user.firstName || user.email} ${user.lastName || user.email}`)}
+      {...stringAvatar(
+        `${user.firstName || user.email} ${user.lastName || user.email}`,
+      )}
       // src={`${import.meta.env.VITE_LOCAL_URL}/${user.image}`}
-      src={`./Aleksandr Brindin.jpg`}
-      sx={[theme => ({
-        color: theme.palette.text.primary,
-      }),]}
+
+      sx={[
+        theme => ({
+          color: theme.palette.text.primary,
+          ...(small ? { width: "2rem", height: "2rem", fontSize: "12px" } : {}),
+        }),
+      ]}
       // src={`${import.meta.env.VITE_BASE_URL}/${user.image}`}
     />
   )

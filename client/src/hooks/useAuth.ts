@@ -38,7 +38,6 @@ const useAuth = (): User["user"] | null => {
 
     try {
       if (accessToken && refreshToken) {
-        console.log("refresh")
         const res = await refresh({ refreshToken }).unwrap();
         setAccessToken(res.accessToken);
         setRefreshToken(res.refreshToken);

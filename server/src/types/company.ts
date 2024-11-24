@@ -34,23 +34,27 @@ export enum EmployeeLimit {
   level5 = "more than 1000",
 }
 
+
 export type ReqCompanyUpdateBody = {
-  companyFileds: ReqCompanyFieldsToUpdate
-  employeeFields: ReqUpdateEmployeeBody[]
+  companyFileds: CompanyFieldsToUpdate
+  employeeFields: UpdateEmployeeBody[]
+  newEmployees: AddEmployeeBody[]
+  removedEmployees:  string[]
 }
 
-export type ReqCompanyFieldsToUpdate = Partial<
+
+export type CompanyFieldsToUpdate = Partial<
 Pick<ICompany, "employeeLimit" | "name">
 >
 
-export type ReqAddEmployeeBody = Partial<Omit<IUser, "id" | "wasOnline" | "emailStatus">> & {
+export type AddEmployeeBody = Partial<Omit<IUser, "id" | "wasOnline" | "emailStatus">> & {
   email: string
   password: string
 }
 
-export type ReqUpdateEmployeeBody = Partial<Omit<IUser, "id" | "wasOnline">> & {
+export type UpdateEmployeeBody = Partial<Omit<IUser, "id" | "wasOnline">> & {
   id: string
 }
-export type ReqRemoveEmployeeBody = {
+export type RemoveEmployeeBody = {
   userIds: string[]
 }
