@@ -8,8 +8,8 @@ import type {
 import type { SubmitHandler } from "react-hook-form"
 import { FormProvider, useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
-import companySchema from "../../../schema/companyShema"
-import { useAppSelector } from "../../../app/hooks"
+import {companySchema} from "../../../schema/companyShema"
+
 import EmployeeTable from "./EmployeeTable/EmployeeTable"
 import { useUpdateCompanyMutation } from "../../../app/api/companyApiSlice"
 import { memo, useCallback, useEffect, useState } from "react"
@@ -30,11 +30,13 @@ const FormCompany = ({ companyData }: { companyData: IFullCompany }) => {
   const [updateCompany, { isLoading, error, data, isSuccess, isError }] =
     useUpdateCompanyMutation()
 
-  // Get the current user from the Redux store using `useAppSelector`
-  const { user } = useAppSelector(state => state.user)
+
 
   // State to manage the Snackbar visibility for update alerts
   const [open, setOpen] = useState(false)
+
+    //  state for all deleted employee IDs 
+  const [removedIds, setRemovedIds] = useState<string[]>([])
 
   // Handler to close the Snackbar, which can be triggered by user interaction or timeout
   const handleClose = (
@@ -54,17 +56,8 @@ const FormCompany = ({ companyData }: { companyData: IFullCompany }) => {
     defaultValues: {
       employeeLimit: company.employeeLimit, // Set default company employee limit
       name: company.name, // Set default company name
-      employees:
-        employees.map(emp => ({
-          id: emp.id,
-          firstName: emp.firstName,
-          lastName: emp.lastName,
-          birthDate: emp.birthDate,
-          email: emp.email,
-          emailStatus: emp.emailStatus,
-          image: emp.image,
-          role: emp.role,
-        })) || [], // Map existing employees to the form structure
+      employees
+        
     },
   })
 
@@ -77,12 +70,12 @@ const FormCompany = ({ companyData }: { companyData: IFullCompany }) => {
 
   // Function to handle form submission
   const onSubmit: SubmitHandler<IFormCompany> = async form => {
-    const body = submitCompanyForm({ dirtyFields, employees, form, getValues })
+    const body = submitCompanyForm({ dirtyFields, employees, form, getValues, removedIds })
     if (body) {
       updateCompany({
         body,
         companyId: company.id,
-      })
+      }).finally(() => setRemovedIds([]))
     }
   }
 
@@ -114,6 +107,7 @@ const FormCompany = ({ companyData }: { companyData: IFullCompany }) => {
         sx={{ padding: "1rem" }}
         component="form"
         onSubmit={handleSubmit(onSubmit)}
+        data-testid="form-company"
       >
         {/* Snackbar alert for showing update status */}
         <TableUpdateAlert
@@ -136,7 +130,7 @@ const FormCompany = ({ companyData }: { companyData: IFullCompany }) => {
         </Divider>
 
         {/* Employee Table */}
-        <EmployeeTable isLoading={isLoading} />
+        <EmployeeTable isLoading={isLoading} removeEmployee={setRemovedIds} />
 
         {/* Divider and action buttons for form submission */}
         <Divider />

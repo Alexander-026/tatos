@@ -1,22 +1,24 @@
 import ApiError from "../../exceptions/apiError"
+import { v4 as uuid } from "uuid"
 import User from "../../models/user.model"
 import transporter from "../../utils/emailTransporter"
 
 const sendConfirmationEmail = async (reqConfirmMailerBody: {
-  id: string
-  myEmail: string
+  email: string
 }): Promise<{ message: string }> => {
-  const { id, myEmail } = reqConfirmMailerBody
-  const user = await User.findById(id)
+  const { email } = reqConfirmMailerBody
+  const user = await User.findOne({ email });
   if (!user) {
     throw ApiError.BadRequest(`Activator not found`)
   }
-  const link = `${process.env.CLIENT_ORIGIN}/activated/${id}`
+  const activationId = uuid()
+  const link = `${process.env.CLIENT_ORIGIN}/activated/${activationId}`
 
   user.emailStatus = "pending"
+  user.activationId = activationId
   const mailOptions = {
     from: process.env.SMTP_USER,
-    to: myEmail,
+    to: email,
     subject: "Confirm Your Email Address",
     text: "",
     html: `

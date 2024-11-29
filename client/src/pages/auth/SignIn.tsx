@@ -1,9 +1,4 @@
-import {
-  Button,
-  Stack,
-  Typography,
-  CircularProgress,
-} from "@mui/material"
+import { Button, Stack, Typography, CircularProgress } from "@mui/material"
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { userLoginSchema } from "../../schema/userSchema"
@@ -34,16 +29,16 @@ const SignIn = ({ authHanlder, isLoading }: SignInProps) => {
   })
 
   // Function to handle form submission
-  const onSubmit: SubmitHandler<LoginUser> = async e => {
+  const onSubmit:SubmitHandler<LoginUser> = async e => {
     // Call authHanlder to handle login and reset the form after it's done
-    authHanlder(e).finally(() => {
-      // Remove focus from the active element (e.g., button) after submission
-      const activeElement = document.activeElement as HTMLElement
-      if (activeElement) {
-        (activeElement as HTMLElement).blur()
-      }
-      reset() // Reset form values to default
-    })
+    await authHanlder(e)
+
+    // Remove focus from the active element (e.g., button) after submission
+    const activeElement = document.activeElement as HTMLElement
+    if (activeElement) {
+      ;(activeElement as HTMLElement).blur()
+    }
+    reset() // Reset form values to default
   }
 
   return (
@@ -56,41 +51,37 @@ const SignIn = ({ authHanlder, isLoading }: SignInProps) => {
       }}
       autoComplete="off"
       direction="column"
-      alignItems={"center"} 
-      justifyContent={"center"} 
+      alignItems="center"
+      justifyContent="center"
       gap={{ xs: 2, sm: 3 }}
     >
       {isLoading ? (
-        <CircularProgress color="inherit" />
+        <CircularProgress data-testid="circular-progress" color="inherit" />
       ) : (
         <>
-          <Typography variant="h5" textAlign="center">
+          <Typography data-testid="title-signIn" variant="h6" textAlign="center">
             Sign In
           </Typography>
 
-          <FormField<LoginUser>
-            control={control} 
-            errors={errors} 
-            name="email" 
-            label="Email" 
-          />
-
-          <FormField<LoginUser>
-            control={control} 
-            errors={errors} 
-            name="password" 
-            label="Password" 
-            password 
-          />
+          {['email', 'password'].map((field) => (
+            <FormField<LoginUser>
+              key={field}
+              control={control}
+              errors={errors}
+              name={field as 'email' | 'password'}
+              label={field.charAt(0).toUpperCase() + field.slice(1)}
+              password={field === 'password'}
+            />
+          ))}
 
           <Button
             disabled={!isValid || isLoading} // Disable button if form is not valid or loading is in progress
-            variant="contained" 
-            size="small" 
+            variant="contained"
+            size="small"
             type="submit"
-            fullWidth 
+            fullWidth
           >
-            {isLoading ? "Loading" : "Sign in"} 
+            Sign in
           </Button>
         </>
       )}

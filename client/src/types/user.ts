@@ -29,12 +29,13 @@ export type User = Tokens & {
     emailStatus: EmailStatus
     image: string
     role: UserRole
-    wasOnline: Date
+    wasOnline: string
   }
 }
 
 export type RegisterUser = {
   password: string
+  repeatPassword: string
   email: string
   employeeLimit: EmployeeLimit
   companyName: string

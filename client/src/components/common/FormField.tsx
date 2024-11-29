@@ -7,17 +7,17 @@ import {
   FormHelperText,
   InputAdornment,
   IconButton,
-  TextField,
   Select,
   MenuItem,
 } from "@mui/material"
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs"
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider"
-import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import { DateField } from "@mui/x-date-pickers/DateField"
 import dayjs from "dayjs"
 import { useState } from "react"
 import { MdVisibility, MdVisibilityOff } from "react-icons/md"
+import { EmployeeLimit } from "../../types/company"
+import PasswordHelperText from "./PasswordHelperText"
 
 type InputType = "text" | "select" | "date"
 
@@ -31,6 +31,7 @@ interface FormFieldProps<T extends FieldValues> {
   options?: { value: string | number; label: string }[]
   date?: boolean
   readonly?: boolean
+  validate?: boolean
 }
 
 const FormField = <T extends FieldValues>({
@@ -42,6 +43,7 @@ const FormField = <T extends FieldValues>({
   password,
   options,
   readonly,
+  validate,
 }: FormFieldProps<T>) => {
   const [visibility, setVisibility] = useState<boolean>(false)
   return (
@@ -80,11 +82,13 @@ const FormField = <T extends FieldValues>({
                 <Select
                   {...field}
                   id={name as string}
+                  inputProps={{"data-testid": label}}
                   aria-describedby={`${name as string}-helper-text`}
                   size="small"
                   error={!!errors[name as string]}
                   fullWidth
                   readOnly={readonly}
+                  value={field.value || EmployeeLimit.level1}
                 >
                   {options?.map(option => (
                     <MenuItem key={option.value} value={option.value}>
@@ -96,7 +100,7 @@ const FormField = <T extends FieldValues>({
               date: (
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
                   <DateField
-                   {...field}
+                    {...field}
                     // label="Birth day"
                     format="DD.MM.YYYY"
                     value={dayjs(field.value) || null}
@@ -113,9 +117,13 @@ const FormField = <T extends FieldValues>({
               ),
             }[type]
           }
-          <FormHelperText error id={`${name as string}-helper-text`}>
-            {errors[name]?.message as string}
-          </FormHelperText>
+          {name === "password" && field.value && validate ? (
+            <PasswordHelperText password={field.value} />
+          ) : (
+            <FormHelperText error id={`${name as string}-helper-text`} data-testid={`${name as string}-helper-text`}>
+              {errors[name]?.message as string}
+            </FormHelperText>
+          )}
         </FormControl>
       )}
     />

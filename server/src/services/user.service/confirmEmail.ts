@@ -4,18 +4,19 @@ import ApiError from "../../exceptions/apiError"
 import User from "../../models/user.model"
 
 const confirmEmailService = async (
-  userId: string,
+  activationId: string,
 ): Promise<{ emailStatus: EmailStatus }> => {
-  const user = await User.findById(userId)
+  const user = await User.findOne({ activationId })
   if (!user) {
     throw ApiError.BadRequest(`Activator not found`)
   }
 
   if (user.emailStatus === "confirmed") {
-    throw ApiError.BadRequest(`already confirmed`)
+    throw ApiError.BadRequest(`Already confirmed`)
   }
 
   user.emailStatus = "confirmed"
+  user.activationId = null
   const savedUser = await user.save()
   const activatedUser = userDto(savedUser)
   const emailStatus = activatedUser.emailStatus

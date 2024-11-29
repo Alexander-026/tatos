@@ -10,6 +10,7 @@ const useAuth = (): User["user"] | null => {
   const { user, refreshed } = useAppSelector((state) => state.user);
   const [accessToken, setAccessToken, removeAccessToken] = useLocalStorage("accessToken");
   const [refreshToken, setRefreshToken, removeRefreshToken] = useLocalStorage("refreshToken");
+  const [, , removeCompanyId] = useLocalStorage("companyId")
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { onUser, logOut } = userSlice.actions;
@@ -24,12 +25,13 @@ const useAuth = (): User["user"] | null => {
       dispatch(logOut());
       removeAccessToken();
       removeRefreshToken();
+      removeCompanyId();
       await logOutApiCall();
       navigate("/auth", { replace: true });
     } catch (error) {
       console.error("Error during logout:", error);
     }
-  }, [dispatch, logOut, removeAccessToken, removeRefreshToken, logOutApiCall, navigate]);
+  }, [dispatch, logOut, removeAccessToken, removeRefreshToken, removeCompanyId, logOutApiCall, navigate]);
 
   const refreshHandler = useCallback(async () => {
     if (refreshCalled.current) return; // Prevent multiple refresh calls

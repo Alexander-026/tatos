@@ -114,7 +114,7 @@ const Auth = () => {
               authHanlder={(fileds: LoginUser) => signInHandler(fileds)}
             />
           </TabPanel>
-          <TabPanel sx={{ minHeight: "28rem" }} value="2">
+          <TabPanel sx={{ minHeight: "28rem", }} value="2">
             <SignUp
               isLoading={signUpLoading || isLoading}
               authHanlder={(fields: RegisterUser) => signUpHanler(fields)}

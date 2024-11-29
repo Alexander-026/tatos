@@ -39,7 +39,7 @@ const register = async (
   })
   const newUser = userDto(user)
   const tokens = await generateTokens({ ...newUser }, res)
-  await sendConfirmationEmail({ id: newUser.id, myEmail: email })
+  await sendConfirmationEmail({ email })
   return { ...tokens, user: newUser }
 }
 

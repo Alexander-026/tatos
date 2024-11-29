@@ -9,7 +9,8 @@ const updateCompanyC = async (
 ): Promise<void> => {
   try {
     // Destructure and extract fields from the request body
-    const { companyFileds, employeeFields, newEmployees, removedEmployees } = req.body;
+    const { companyFileds, employeeFields, newEmployees, removedEmployees } =
+      req.body;
 
     // Prepare an array to accumulate the messages
     const messages: string[] = [];
@@ -17,52 +18,72 @@ const updateCompanyC = async (
     // Prepare response containers for various operations
     const responseData: Record<string, any> = {};
 
+    // Array to hold all async operation functions
+    const operations: (() => Promise<void>)[] = [];
+
     // Update company fields if provided
     if (companyFileds) {
-      const resultUpdateCompany = await companyService.updateCompany({
-        idCompany: req.params.id,
-        fieldsToUpdate: companyFileds,
+      operations.push(async () => {
+        const resultUpdateCompany = await companyService.updateCompany({
+          idCompany: req.params.id,
+          fieldsToUpdate: companyFileds,
+        });
+        responseData.resultUpdateCompany = resultUpdateCompany;
+        if (resultUpdateCompany?.message) {
+          messages.push(resultUpdateCompany.message);
+        }
+        console.log("1")
       });
-      responseData.resultUpdateCompany = resultUpdateCompany;
-      if (resultUpdateCompany?.message) {
-        messages.push(resultUpdateCompany.message);
-      }
     }
 
     // Update employee fields if provided
     if (employeeFields?.length) {
-      const resultUpdateEmployee = await companyService.updateEmployee({
-        companyId: req.params.id,
-        employees: employeeFields,
-      });
-      responseData.resultUpdateEmployee = resultUpdateEmployee;
-      if (resultUpdateEmployee?.message) {
-        messages.push(resultUpdateEmployee.message);
-      }
-    }
+      operations.push(async () => {
+        const resultUpdateEmployee = await companyService.updateEmployee({
+          companyId: req.params.id,
+          employees: employeeFields,
+        });
 
-    // Add new employees if provided
-    if (newEmployees?.length) {
-      const resultNewEmployees = await companyService.addEmployee({
-        companyId: req.params.id,
-        candidateEmployees: newEmployees,
+        responseData.resultUpdateEmployee = resultUpdateEmployee;
+        if (resultUpdateEmployee?.message) {
+          messages.push(resultUpdateEmployee.message);
+        }
       });
-      responseData.resultNewEmployees = resultNewEmployees;
-      if (resultNewEmployees?.message) {
-        messages.push(resultNewEmployees.message);
-      }
     }
 
     // Remove employees if provided
     if (removedEmployees?.length) {
-      const resultRemovedEmployees = await companyService.removeEmployee({
-        companyId: req.params.id,
-        userIds: removedEmployees,
+      operations.push(async () => {
+        const resultRemovedEmployees = await companyService.removeEmployee({
+          companyId: req.params.id,
+          userIds: removedEmployees,
+        });
+        responseData.resultRemovedEmployees = resultRemovedEmployees;
+        if (resultRemovedEmployees?.message) {
+          messages.push(resultRemovedEmployees.message);
+        }
+        console.log("3")
       });
-      responseData.resultRemovedEmployees = resultRemovedEmployees;
-      if (resultRemovedEmployees?.message) {
-        messages.push(resultRemovedEmployees.message);
-      }
+    }
+
+    // Add new employees if provided
+    if (newEmployees?.length) {
+      operations.push(async () => {
+        const resultNewEmployees = await companyService.addEmployee({
+          companyId: req.params.id,
+          candidateEmployees: newEmployees,
+        });
+        responseData.resultNewEmployees = resultNewEmployees;
+        if (resultNewEmployees?.message) {
+          messages.push(resultNewEmployees.message);
+        }
+        console.log("4")
+      });
+    }
+
+    // Execute all operations sequentially using for...of loop
+    for (const operation of operations) {
+      await operation();
     }
 
     // Construct and send the response
