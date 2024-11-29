@@ -1,9 +1,8 @@
 import type { FC, PropsWithChildren } from "react"
-import { createContext, useCallback, useEffect, useState } from "react"
+import { createContext, useCallback, useEffect } from "react"
 import type { CompanyContextType, IFullCompany } from "../types/company"
 import useLocalStorage from "../hooks/useLocalStorage"
 import { useLazyGetCompanyQuery } from "../app/api/companyApiSlice"
-import type { SnackbarCloseReason } from "@mui/material"
 import LoaderWrapper from "../components/LoaderWrapper"
 
 export const CompanyContext = createContext<CompanyContextType>(
@@ -12,7 +11,7 @@ export const CompanyContext = createContext<CompanyContextType>(
 
 const CompanyContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [companyId] = useLocalStorage("companyId")
-  const [getCompany, { data: company, isError, error, isLoading }] =
+  const [getCompany, { data: company,  error, isLoading }] =
     useLazyGetCompanyQuery()
 
   const getCompanyHanlder = useCallback(() => {
@@ -24,6 +23,9 @@ const CompanyContextProvider: FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     getCompanyHanlder()
   }, [getCompanyHanlder])
+
+
+
 
   return (
     <LoaderWrapper<IFullCompany>

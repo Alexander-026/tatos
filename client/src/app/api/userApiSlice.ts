@@ -24,10 +24,10 @@ export const userApiSlice = apiSlice.injectEndpoints({
     }),
     confirmEmail: builder.query<
       { emailStatus: EmailStatus },
-      { userId: string }
+      { activationId: string }
     >({
-      query: ({ userId }) => ({
-        url: `${import.meta.env.VITE_USERS_URL}/confirmEmail/${userId}`,
+      query: ({ activationId }) => ({
+        url: `${import.meta.env.VITE_USERS_URL}/confirmEmail/${activationId}`,
       }),
     }),
     logout: builder.mutation<void, void>({

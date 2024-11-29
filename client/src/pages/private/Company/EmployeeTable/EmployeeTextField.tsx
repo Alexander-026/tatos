@@ -7,10 +7,13 @@ import {
   type FieldValues,
   type Path,
 } from "react-hook-form"
+import type { IFormEmployee } from "../../../../types/company"
 
 // Props interface for the EmployeeTextField component
-interface EmployeeTextFieldProps<T extends FieldValues> extends ComponentProps<typeof TextField> {
+interface EmployeeTextFieldProps<T extends FieldValues>
+  extends ComponentProps<typeof TextField> {
   name: Path<T> // The name of the field as defined in the form structure
+  pathName: Path<IFormEmployee> // The name of the field as defined in the form structure
   control: Control<T> // Control object provided by react-hook-form for managing the form state
   label?: string // Optional label for the input field
   selectOptions?: string[] // Optional array of select options (if the field is a dropdown)
@@ -23,10 +26,10 @@ const EmployeeTextField = <T extends FieldValues>({
   control,
   label,
   selectOptions,
+  pathName,
   errors,
   ...props
 }: EmployeeTextFieldProps<T>) => (
-  // Using Controller from react-hook-form to manage the state and interactions of the input field
   <Controller
     name={name} // Field name to identify the value in form state
     control={control} // Control object to manage form state
@@ -34,12 +37,12 @@ const EmployeeTextField = <T extends FieldValues>({
       <TextField
         {...field} // Spread field props provided by react-hook-form (e.g., onChange, value, ref)
         {...props}
-        label={label} 
-        variant="standard" 
-        size="small" 
+        label={label}
+        variant="standard"
+        size="small"
         select={!!selectOptions} // If selectOptions are provided, make the field a dropdown (select)
-        error={errors ? !!errors[name] : false} // Display error styling if there is an error for this field
-        helperText={errors ? (errors[name]?.message as string) : ""} // Show error message if one exists
+        error={errors ? !!errors[pathName] : false} // Display error styling if there is an error for this field
+        helperText={errors ? (errors[pathName]?.message as string) : ""} // Show error message if one exists
       >
         {selectOptions &&
           selectOptions.map(option => (

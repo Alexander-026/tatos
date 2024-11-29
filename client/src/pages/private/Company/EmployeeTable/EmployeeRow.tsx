@@ -60,16 +60,18 @@ const EmployeeRow: React.FC<EmployeeRowProps> = ({
         {/* First Name TextField */}
         <EmployeeTextField<IFormCompany>
           name={`employees.${index}.firstName` as Path<IFormCompany>}
+          pathName="firstName"
           control={control}
           errors={errors.employees?.[index]}
-          sx={{width: "50%"}}
+          sx={{ width: "50%" }}
         />
         {/* Last Name TextField */}
         <EmployeeTextField<IFormCompany>
           name={`employees.${index}.lastName` as Path<IFormCompany>}
           control={control}
+          pathName="lastName"
           errors={errors.employees?.[index]}
-          sx={{width: "50%"}}
+          sx={{ width: "50%" }}
         />
       </Stack>
     </TableCell>
@@ -102,6 +104,7 @@ const EmployeeRow: React.FC<EmployeeRowProps> = ({
       <EmployeeTextField<IFormCompany>
         name={`employees.${index}.email` as Path<IFormCompany>}
         control={control}
+        pathName="email"
         errors={errors.employees?.[index]}
       />
     </TableCell>
@@ -111,6 +114,7 @@ const EmployeeRow: React.FC<EmployeeRowProps> = ({
       <EmployeeTextField<IFormCompany>
         name={`employees.${index}.emailStatus` as Path<IFormCompany>}
         control={control}
+        pathName="emailStatus"
         errors={errors.employees?.[index]}
         selectOptions={Object.values(EmailStatus)} // Provide select options for email status
       />
@@ -128,11 +132,16 @@ const EmployeeRow: React.FC<EmployeeRowProps> = ({
         <EmployeeTextField<IFormCompany>
           name={`employees.${index}.role` as Path<IFormCompany>}
           control={control}
+          pathName="role"
           errors={errors.employees?.[index]}
           selectOptions={Object.values(UserRole)} // Provide select options for role
         />
         {/* Delete Employee Button */}
-        <IconButton color="error" onClick={() => remove(index)}>
+        <IconButton
+          color="error"
+          onClick={() => remove(index)}
+          aria-label="remove"
+        >
           <IoIosRemoveCircle />
         </IconButton>
       </Stack>

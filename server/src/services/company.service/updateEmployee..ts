@@ -1,4 +1,5 @@
 import companyDto from "../../dtos/companyDto";
+import ApiError from "../../exceptions/apiError";
 import Company from "../../models/company.model";
 import User from "../../models/user.model";
 import type { ICompany, UpdateEmployeeBody } from "../../types/company";
@@ -30,7 +31,7 @@ const updateEmployee = async ({
 
       // Skip this operation if the user does not exist
       if (!existingUser) {
-        return null;
+        throw ApiError.BadRequest(`the user does not exist`)
       }
 
       // Check if the email has changed and if it already exists
@@ -39,7 +40,7 @@ const updateEmployee = async ({
         employee.email !== existingUser.email &&
         existingEmails.has(employee.email)
       ) {
-        return null; // Skip the update if the new email is already in use
+        throw ApiError.BadRequest(`email ${employee.email} is already in use`) // Skip the update if the new email is already in use
       }
 
       // Prepare the update data object for partial updates
@@ -50,7 +51,7 @@ const updateEmployee = async ({
         if (key === "id") continue; // Skip the "id" field, it is not updated
 
         // Compare the values between the new data and the existing data
-        if (!!employee[key] && !!existingUser[key] && employee[key] !== existingUser[key]) {
+        if ((!!employee[key] && !!existingUser[key] && employee[key] !== existingUser[key]) || key === "birthDate") {
           updateData[key] = employee[key] as any; // Add only changed fields to updateData
         }
       }
@@ -62,7 +63,7 @@ const updateEmployee = async ({
 
       // Skip this operation if there are no changes
       if (Object.keys(updateData).length === 0) {
-        return null;
+        throw ApiError.BadRequest(` Skip this operation if there are no changes`)
       }
 
       // Return the update operation for bulkWrite

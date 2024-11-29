@@ -8,6 +8,7 @@ interface SubmitCompanyFormParams {
   dirtyFields: FieldValues; // Tracks which fields have been modified (FieldValues type from react-hook-form)
   employees: IFormCompany['employees']; // Array of employees initially provided
   getValues: UseFormGetValues<IFormCompany>; // Function to get the current form values
+  removedIds: string[] // all deleted employee IDs
 }
 
 // Function to handle form submission
@@ -16,6 +17,7 @@ const submitCompanyForm =  ({
   dirtyFields,
   employees,
   getValues,
+  removedIds
 }: SubmitCompanyFormParams): Partial<CompanyUpdateBodyTypes>  | null => {
   let updateCompanyBody: Partial<CompanyUpdateBodyTypes> = {}
 
@@ -49,14 +51,12 @@ const submitCompanyForm =  ({
   }
 
   // Check if employees have been removed by comparing current and default employee lists
-  if (employees.length > getValues().employees.length) {
-    const currentIds = getValues().employees.map(emp => emp.id)
-    const deletedIds = employees
-      .filter(emp => !currentIds.includes(emp.id))
-      .map(emp => emp.id)
+  if (removedIds.length) {
+
+      console.log("removedIds", removedIds)
     updateCompanyBody = {
       ...updateCompanyBody,
-      removedEmployees: deletedIds,
+      removedEmployees: removedIds,
     }
   }
 

@@ -1,31 +1,18 @@
-import { Navigate, Outlet, useNavigate, useParams } from "react-router-dom"
-// import { useLazyConfirmEmailQuery } from "../app/api/usersApiSlice"
+import { Navigate, Outlet, useParams } from "react-router-dom"
 import { useCallback, useEffect } from "react"
-import { Box, Typography } from "@mui/material"
 import LoaderWrapper from "./LoaderWrapper"
 import { useLazyConfirmEmailQuery } from "../app/api/userApiSlice"
 import { useAppSelector } from "../app/hooks"
-
+import type ApiError from "../types/errors"
 
 const ActivatedRouter = () => {
   const { id } = useParams<{ id: string }>()
   const { user } = useAppSelector(state => state.user)
-  const navigate = useNavigate()
-  const [confirmEmail, { isError, error, isLoading, data }] =
-    useLazyConfirmEmailQuery()
-
-
-  
-  if(user?.emailStatus === "confirmed") {
-    navigate("/company", { replace: true })
-  }
-
-
-
+  const [confirmEmail, { error, isLoading, data }] = useLazyConfirmEmailQuery()
 
   const confirmHandler = useCallback(() => {
     if (id) {
-      confirmEmail({userId:id})
+      confirmEmail({ activationId: id })
     }
   }, [confirmEmail, id])
 
@@ -33,15 +20,21 @@ const ActivatedRouter = () => {
     confirmHandler()
   }, [confirmHandler])
 
-  if (isError) {
-    console.log("isError", error)
-    return <Navigate to="/" replace/>
+  if (error && user) {
+    return <Navigate to="/company" state={error as ApiError} replace />
+  } else if (error) {
+    return <Navigate to="/" state={error as ApiError} replace />
   }
+
   return (
-    <LoaderWrapper loading={isLoading} data={data}>
-      <>
-       {data?.emailStatus === "confirmed" ?  <Outlet /> : <Navigate to="/" replace/>}
-      </>
+    <LoaderWrapper loading={isLoading} data={data} error={error}>
+      {emailStatus =>
+        emailStatus?.emailStatus === "confirmed" ? (
+          <Outlet />
+        ) : (
+          <Navigate to="/company" replace />
+        )
+      }
     </LoaderWrapper>
   )
 }

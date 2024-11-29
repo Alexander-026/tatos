@@ -36,6 +36,10 @@ const userSchema = new mongoose.Schema<UserModel>(
       required: true,
       default: "unconfirmed",
     },
+    activationId: {
+      type: String,
+      default: null,
+    },
     image: { type: String, default: "" },
     wasOnline: { type: Date, default: Date.now },
   },

@@ -8,10 +8,9 @@ const sendConfirmationEmailC = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const { id, email } = req.user!
+    const { email } = req.user!
     const message = await userService.sendConfirmationEmail({
-      id,
-      myEmail: email,
+      email,
     })
 
     res.status(200).json(message)

@@ -9,11 +9,13 @@ import {
   TableRow,
   Paper,
   Button,
+  Typography,
 } from "@mui/material"
 import Grid from "@mui/material/Grid2"
 
 import { EmailStatus, UserRole } from "../../../../types/user"
 import { IoIosPersonAdd } from "react-icons/io"
+import type { Dispatch, SetStateAction } from "react"
 import { useRef } from "react"
 import EmployeeRow from "./EmployeeRow"
 
@@ -32,7 +34,10 @@ const addNewEmployee = (index: number): IFormEmployee => {
   }
 }
 
-const EmployeeTable = ({ isLoading }: { isLoading: boolean }) => {
+const EmployeeTable: React.FC<{
+  isLoading: boolean
+  removeEmployee: Dispatch<SetStateAction<string[]>>
+}> = ({ isLoading, removeEmployee }) => {
   // Get form context using useFormContext to work with the form state
   const {
     control,
@@ -67,6 +72,14 @@ const EmployeeTable = ({ isLoading }: { isLoading: boolean }) => {
     }, 0)
   }
 
+  const removeHanlder = (index: number) => {
+    const removedId = fields[index].id
+    if (removedId !== "new") {
+      removeEmployee(pre => [...pre, removedId])
+    }
+    remove(index)
+  }
+
   return (
     <Grid width={"100%"} container spacing={1}>
       {/* Button to add a new employee */}
@@ -77,6 +90,7 @@ const EmployeeTable = ({ isLoading }: { isLoading: boolean }) => {
           startIcon={<IoIosPersonAdd />} // Icon before the button label
           onClick={handleAppend} // Call handleAppend when clicked
           size="small"
+          aria-label="add employee"
         >
           Add Employee
         </Button>
@@ -84,46 +98,49 @@ const EmployeeTable = ({ isLoading }: { isLoading: boolean }) => {
 
       {/* Table displaying the list of employees */}
       <Grid size={12}>
-        <TableContainer
-          ref={tableContainerRef}
-          component={Paper}
-          sx={{
-            maxHeight: "26rem", // Limit the maximum height of the table container
-          }}
-        >
-          <Table
-            size="small"
-            stickyHeader
-            aria-label="employee table"
-            sx={{ minWidth: "1100px" }} // Minimum width for the table to avoid layout issues
-           
+        {fields.length ? (
+          <TableContainer
+            ref={tableContainerRef}
+            component={Paper}
+            sx={{
+              maxHeight: "26rem", // Limit the maximum height of the table container
+            }}
           >
-            <TableHead
-              sx={[theme => ({ bgcolor: theme.palette.background.default })]}
+            <Table
+              size="small"
+              stickyHeader
+              aria-label="employee table"
+              sx={{ minWidth: "1100px" }} // Minimum width for the table to avoid layout issues
             >
-              <TableRow>
-                <TableCell>Full Name</TableCell>
-                <TableCell>Birth Date</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Email Status</TableCell>
-                <TableCell>Role</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {/* Render each employee row */}
-              {fields.map((employee, i) => (
-                <EmployeeRow
-                  key={employee._id} // Unique key for each employee row
-                  employee={employee} // Employee data for the current row
-                  index={i} // Index of the current employee
-                  control={control} // Control object from react-hook-form
-                  errors={errors} // Form errors to display validation messages
-                  remove={remove} // Remove function to delete the employee
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              <TableHead
+                sx={[theme => ({ bgcolor: theme.palette.background.default })]}
+              >
+                <TableRow>
+                  <TableCell>Full Name</TableCell>
+                  <TableCell>Birth Date</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Email Status</TableCell>
+                  <TableCell>Role</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {/* Render each employee row */}
+                {fields.map((employee, i) => (
+                  <EmployeeRow
+                    key={employee._id} // Unique key for each employee row
+                    employee={employee} // Employee data for the current row
+                    index={i} // Index of the current employee
+                    control={control} // Control object from react-hook-form
+                    errors={errors} // Form errors to display validation messages
+                    remove={removeHanlder} // Remove function to delete the employee
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <></>
+        )}
       </Grid>
     </Grid>
   )

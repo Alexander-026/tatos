@@ -4,8 +4,8 @@ export interface ICompany {
   id: string
   directorId: string
   name: string
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string
+  updatedAt: string
   employees: string[]
   chats: string[]
   employeeLimit: EmployeeLimit
@@ -23,6 +23,7 @@ export interface IFullCompany {
 
 export type IFormEmployee =  Omit<User["user"],  "wasOnline" > & {
   password?: string 
+  wasOnline?: string
 }
 
 export type IFormCompany = {

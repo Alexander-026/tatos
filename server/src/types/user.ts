@@ -6,6 +6,7 @@ import type { Request } from "express"
 export type UserModel = Document &
   Omit<IUser, "id"> & {
     _id: mongoose.Types.ObjectId
+    activationId: null | string
     password: string
     createdAt: Date
     updatedAt: Date

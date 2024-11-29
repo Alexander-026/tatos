@@ -15,7 +15,7 @@ router.post(
   authMiddleWare,
   userController.sendConfirmationEmailC,
 )
-router.get("/confirmEmail/:id", userController.confirmEmailC)
+router.get("/confirmEmail/:activationId", userController.confirmEmailC)
 router.post("/refresh", userController.refreshUserC)
 router.put(
   "/update",

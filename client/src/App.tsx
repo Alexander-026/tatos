@@ -1,5 +1,4 @@
 import {
-  Navigate,
   Route,
   RouterProvider,
   createBrowserRouter,
@@ -18,16 +17,16 @@ import Tasks from "./pages/private/Tasks"
 import Calendar from "./pages/private/Calendar"
 import Files from "./pages/private/Files"
 import { CssBaseline } from "@mui/material"
-import Home from "./pages/Home"
+import Home from "./pages/home/Home"
 
 const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
         <Route path="/" element={<Home />} />
-        <Route path="" element={<PrivateRouter />}>
+        <Route path="company" element={<PrivateRouter />}>
           <Route path="" element={<Layout />}>
-            <Route path="company" element={<Company />} />
+            <Route index element={<Company />} />
             <Route path="company/messages" element={<Messages />} />
             <Route path="company/diagrams" element={<Diagrams />} />
             <Route path="company/tasks" element={<Tasks />} />
@@ -39,9 +38,8 @@ const App = () => {
         <Route path="" element={<ActivatedRouter />}>
           <Route path="/activated/:id" element={<Activated />} />
         </Route>
-
+        <Route path="*" element={<>NotFount</>} />
         <Route path="/auth" element={<Auth />} />
-        <Route path="*" element={<>Not Found</>} />
       </>,
     ),
     {
